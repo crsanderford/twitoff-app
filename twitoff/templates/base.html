@@ -1,9 +1,21 @@
-<html>
-    <head>
-		<title>Twitoff - {{title}}</title>
-	</head>
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title>Twitoff! {{title}} </title>
+    <link rel="stylesheet" href="https://unpkg.com/picnic">
+  </head>
+    <body>
+      <h1> Twitoff App </h1>
+      {% block content %}
+      
+      <form action="/user" method="post">
+        <input type="text" name="user_name" placeholder="User to Add">
+        <input type="submit" value="Add User">
+      </form>
 
-	<body>
-		<h1> Content goes here! </h1>
-	</body>
+      
+
+      {% endblock %}
+    </body>
 </html>
