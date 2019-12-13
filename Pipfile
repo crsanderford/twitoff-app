@@ -11,6 +11,9 @@ flask-sqlalchemy = "*"
 tweepy = "*"
 basilica = "*"
 python-decouple = "*"
+numpy = "*"
+scikit-learn = "*"
+waitress = "*"
 
 [requires]
 python_version = "3.7"
