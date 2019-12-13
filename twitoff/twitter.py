@@ -21,16 +21,26 @@ def insert_user(username):
         DB.session.add(db_user)
         tweets = twitter_user.timeline(count=200, exclude_replies=True,
         include_rts=False, tweet_mode='extended', since_id=db_user.newest_tweet_id)
+        
         if tweets:
             db_user.newest_tweet_id = tweets[0].id
+        
         for tweet in tweets:
             embedding = BASILICA.embed_sentence(tweet.full_text, model='twitter')
             db_tweet = Tweet(id=tweet.id, text=tweet.full_text[:300],
             embedding=embedding)
             db_user.tweets.append(db_tweet)
             DB.session.add(db_tweet)
+    
     except Exception as e:
         print(f'Error processing{username}: {e}')
         raise e
+    
     else:
         DB.session.commit()
+
+
+def update_users():
+    """update all users in the user table."""
+    for user in User.query.all():
+        insert_user(user.name)

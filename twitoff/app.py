@@ -2,7 +2,8 @@ from decouple import config
 import uuid
 from flask import Flask, render_template, request
 from .models import DB, User, Tweet
-from .twitter import insert_user
+from .twitter import insert_user, update_users
+from .predict import predict_user
 
 
 def create_app():
@@ -14,16 +15,9 @@ def create_app():
 
     @app.route('/')
     def index():
-        #rand_name = str(uuid.uuid4())
-        #rand_u = User(name=rand_name)
-        #DB.session.add(rand_u)
-        #DB.session.commit()
         users = User.query.all()
         return render_template('base.html', title='index', users=users)
 
-    @app.route('/hello')
-    def hello():
-        return render_template('base.html', title='hello...world.')
     
     @app.route('/user', methods=['POST'])
     @app.route('/user/<name>', methods=['GET'])
@@ -39,8 +33,24 @@ def create_app():
             tweets = []
         return render_template('user.html', title=name, tweets=tweets, message=message)
 
+    @app.route('/predict', methods=['POST'])
+    def predict(message=''):
+        user1, user2 = sorted([request.values['user1'],
+                               request.values['user2']])
+        if user1 == user2:
+            message = 'choose distinct users!'
+        else:
+            predicted = predict_user(user1, user2, request.values['tweet_text'])
+            message = '"{}" is more likely to be tweeted by {} than {}'.format(
+                request.values['tweet_text'], user1 if predicted else user2,
+                user2 if predicted else user1)
+        return render_template('prediction.html', title='Prediction', message=message)
 
 
+    @app.route('/update')
+    def update():
+        update_users()
+        return render_template('base.html', users=User.query.all(), title='all tweets updated.')
 
     @app.route('/reset')
     def reset():
@@ -49,9 +59,3 @@ def create_app():
         return render_template('base.html', title='DB Reset.', users=[])
 
     return app
-
-"""if __name__ == '__main__':
-    app = create_app()
-    app.run(debug=True)
-    port = int(os.environ.get('PORT', 5000))
-    app.run(host='0.0.0.0', port=port)"""
